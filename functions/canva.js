@@ -1,12 +1,9 @@
 const { createCanvas, loadImage, registerFont } = require('canvas')
 const canvas = createCanvas(1370, 1195);
-const path = require('path');
 const ctx = canvas.getContext('2d');
-const fontPath = path.join(__dirname, './assets/fonts/Spiegel-OTF/Spiegel-Bold.otf');
-const fontPath2 = path.join(__dirname, './assets/fonts/BeaufortForLoL-TTF/BeaufortforLOL-Bold.ttf');
 
-registerFont(fontPath, { family: 'Spiegel'});
-registerFont(fontPath2, { family: 'BeaufortforLOL'});
+registerFont('./assets/fonts/Spiegel-OTF/Spiegel-Bold.otf', { family: 'Spiegel'});
+registerFont('./assets/fonts/BeaufortForLoL-TTF/BeaufortforLOL-Bold.ttf', { family: 'BeaufortforLOL'});
 module.exports = async function createImage(skins) {
     // Background
     let background = await loadImage('./assets/background/background.png');
