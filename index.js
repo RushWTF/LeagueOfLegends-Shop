@@ -2,11 +2,31 @@ const axios = require('axios');
 const https = require('https');
 const fs = require('fs');
 const canvas = require('./canva');
-
+const prompt = require('prompt');
 // Get lockfile data
 async function getLockfile() {
     console.log("Getting lockfile data...");
-    const lockfile = fs.readFileSync("C:\\Riot Games\\League of Legends\\lockfile", "utf8");
+    var lockfile;
+    if (!fs.existsSync("data.json")) {
+        console.log("Lockfile path not found, please enter it manually.");
+        prompt.start();
+        var resultLockfile = await prompt.get(["lockfile"]);
+        console.log("Lockfile path entered successfully.");
+        console.log("Saving lockfile path...");
+        console.log("If you want to change the lockfile path, delete the data.json file.")
+        lockfile = fs.readFileSync(result.lockfile, "utf-8");
+        console.log("Enter your language (es_ES, en_US, etc...)");
+        prompt.start();
+        var resultLang = await prompt.get(["language"]);
+        console.log("Language entered successfully.");
+        console.log("Saving language...");
+        fs.writeFileSync("data.json", JSON.stringify({lockfile: resultLockfile.lockfile, language: resultLang.language}));
+    }
+    else {
+        var lockfileRead = fs.readFileSync("data.json", "utf-8");
+        lockfileRead = JSON.parse(lockfileRead).lockfile;
+        lockfile = fs.readFileSync(lockfileRead, "utf-8");
+    }
     return lockfile.split(":");
 }
 // Create API
@@ -53,15 +73,17 @@ async function main() {
         }
         // Get skin info
         async function getInfoSkins(skinId) {
-            console.log("Getting skins info...");
             const response = await api.get(`/lol-store/v1/skins/${skinId}`);
+            let language = JSON.parse(fs.readFileSync("data.json", "utf-8")).language;
             let data = [];
             let champId = response.data.itemRequirements[0].itemId
             let originalPrice = response.data.prices[0].cost;
             let discountPrice = response.data.sale.prices[0].cost;
             let discountPercent = response.data.sale.prices[0].discount;
-            let skinName = response.data.localizations.es_ES.name;
+            let skinName = response.data.localizations[language].name;
+            console.log(`Getting info from ${skinName}`);
             data.push(champId, originalPrice, discountPrice, discountPercent, skinName);
+            console.log(`Info from ${skinName} got successfully`);
             return data;
         }
         // Get store sales
@@ -85,10 +107,14 @@ async function main() {
             let skin = new Skin(startDate, endDate, skinId, champId, originalPrice, discountPrice, discountPercent, skinName, `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-tiles/${champId}/${skinId}.jpg`);
             skins.push(skin);
         }
+        console.log("Creating image...");
         // Create image
         let image = await canvas(skins);
         // Save image
+        console.log("Saving image...");
         fs.writeFileSync("storeSales.png", image);
+        console.log("Image saved successfully.");
+        console.log("Finished.");
 
     } catch (error) {
         console.error(`Error: ${error.message}`);
