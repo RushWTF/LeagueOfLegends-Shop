@@ -8,9 +8,10 @@ const fontPath2 = path.join(__dirname, './assets/fonts/BeaufortForLoL-TTF/Beaufo
 registerFont(fontPath, { family: 'Spiegel'});
 registerFont(fontPath2, { family: 'BeaufortforLOL'});
 module.exports = async function createImage(skins) {
-    console.log(skins);
+    // Background
     let background = await loadImage('./assets/background/background.png');
     ctx.drawImage(background, 0, 0, canvas.width + 300, canvas.height);
+    // Logo
     ctx.shadowColor = "#C89B3C";
     ctx.shadowBlur = 2;
     ctx.shadowOffsetX = 1;

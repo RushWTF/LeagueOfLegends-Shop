@@ -5,6 +5,7 @@ const canvas = require('./canva');
 
 // Get lockfile data
 async function getLockfile() {
+    console.log("Getting lockfile data...");
     const lockfile = fs.readFileSync("C:\\Riot Games\\League of Legends\\lockfile", "utf8");
     return lockfile.split(":");
 }
@@ -25,14 +26,17 @@ function createApi(port, password) {
 // Main function
 async function main() {
     try {
+        console.log("Starting...");
         const lockfileData = await getLockfile();
         const port = lockfileData[2];
         const password = lockfileData[3];
+        console.log("Getting store sales...");
         const api = createApi(port, password);
         async function getStoreSales() {
             const response = await api.get("/lol-store/v1/catalog/sales");
             return response.data;
         }
+        
         // Skin class
         class Skin {
             constructor(startDate, endDate, skinId, champId, originalPrice, discountPrice, discountPercent, skinName, iconURL) {
@@ -49,6 +53,7 @@ async function main() {
         }
         // Get skin info
         async function getInfoSkins(skinId) {
+            console.log("Getting skins info...");
             const response = await api.get(`/lol-store/v1/skins/${skinId}`);
             let data = [];
             let champId = response.data.itemRequirements[0].itemId
